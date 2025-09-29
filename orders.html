@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/order.css">
+    <title>Orders </title>
+</head>
+<body>
+     <div class="container">
+
+        <header class="header">
+            <h1 style="text-align: center;">Order Management System</h1>
+            <div class="user-info" id="userInfo" >
+                <span id="welcomeMessage"></span>
+                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            </div>
+        </header>
+
+        <div id="alertContainer"></div>
+
+     <div id="mainSection" class="main-section mt-3" >
+            <div class="order-form-section">
+                <h2>Place New Order</h2>
+                <form id="orderForm">
+                    <div class="form-group">
+                        <label for="title">Order Title</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="details">Details</label>
+                        <input type="text" id="details"required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price </label>
+                        <input type="number" id="price" step="0.01" min="0" required>
+                    </div>
+                    <button type="submit" id="createOrderBtn" class="btn btn-primary">Create Order</button>
+                </form>
+            </div>
+
+            <div class="orders-section">
+                <div class="orders-header">
+                    <h2>Your Orders</h2>
+                    <button id="refreshOrdersBtn" class="btn btn-secondary">Refresh</button>
+                </div>
+                <div id="ordersContainer">
+                    <div id="loadingSpinner" class="loading" style="display: none;">Loading orders...</div>
+                    <div id="ordersTable"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/order.js"></script>
+</body>
+</html>
