@@ -1,6 +1,5 @@
 const API_BASE_URL = "https://admindemo.boniantech.com/callprophetsTest" 
 const API_ENDPOINTS = {
-  getOrderById: "/api/Order/GetOrderById",
   addOrder: "/api/Order/AddOrder",
   getOrdersByCustomerId: "/api/Order/GetOrdersByCustomerId",
   deleteOrder: "/api/Order/Delete",
@@ -20,28 +19,11 @@ const logoutBtn = document.getElementById("logoutBtn")
 const ordersContainer = document.getElementById("ordersContainer")
 const loadingSpinner = document.getElementById("loadingSpinner")
 const ordersTable = document.getElementById("ordersTable")
-const userEmail = currentUser?.UserName || "User"
-welcomeMessage.textContent = `Welcome, ${userEmail}`
+const userName = currentUser?.UserName || "User"
+welcomeMessage.textContent = `Welcome, ${userName}`
 
-function showAlert(message, type = "success") {
-  const alert = document.createElement("div")
-  alert.className = `alert alert-${type}`
-  alert.textContent = message
-  alertContainer.appendChild(alert)
-  setTimeout(() => {
-    if (alert.parentNode) {
-      alert.parentNode.removeChild(alert)
-    }
-  }, 4000)
-}
 
-function clearAlerts() {
-  alertContainer.innerHTML = ""
-}
 
-function showLoading(show = true) {
-  loadingSpinner.style.display = show ? "block" : "none"
-}
 
 async function makeApiRequest(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`
@@ -65,25 +47,44 @@ async function makeApiRequest(endpoint, options = {}) {
   }
   try {
     const response = await fetch(url, finalOptions)
-
     if (response.status === 401) {
-      redirectToLogin()
-      throw new Error("Unauthorized access")
+      redirectToLogin();
+      
     }
      const data = await response.json();
      return data ;
   } catch (error) {
     console.error("API Request Error:", error)
-    throw error
   }
 }
+
+function showAlert(message, type = "success") {
+  const alert = document.createElement("div")
+  alert.className = `alert alert-${type}`
+  alert.textContent = message
+  alertContainer.appendChild(alert)
+  setTimeout(() => {
+    if (alert.parentNode) {
+      alert.parentNode.removeChild(alert)
+    }
+  }, 4000)
+}
+
+
+function clearAlerts() {
+  alertContainer.innerHTML = ""
+}
+
+function showLoading(show = true) {
+  loadingSpinner.style.display = show ? "block" : "none"
+}
+
 
 
 function redirectToLogin() {
   localStorage.removeItem("authToken")
   authToken = null
   currentUser = null
-  showAuthSection()
   showAlert("Session expired. Please login again.", "warning")
 }
 
@@ -100,9 +101,10 @@ async function createOrder(orderData) {
        orderForm.reset()
       return;
     }
+    
+    await loadOrders() 
     showAlert("Order created successfully!", "success")
     orderForm.reset()
-    loadOrders() 
   } catch (error) {
     showAlert(`Failed to create order: ${error.message}`, "error")
   }
@@ -113,12 +115,10 @@ async function loadOrders() {
     showLoading(true)
 
     let endpoint = API_ENDPOINTS.getOrdersByCustomerId
-
     const response = await makeApiRequest(endpoint);
     const data = response.returnedObj ;
-    orders = Array.isArray(data) ? data : data.orders || []
+    orders = data;  
     displayOrders()
-    showAlert(`Loaded ${orders.length} orders`, "success")
   } catch (error) {
     showAlert(`Failed to load orders: ${error.message}`, "error")
     displayOrders([]) 
@@ -136,7 +136,7 @@ async function deleteOrder(orderId) {
       method: "DELETE",
     })
     showAlert("Order deleted successfully!", "success")
-    loadOrders() 
+    await loadOrders() 
   } catch (error) {
     showAlert(`Failed to delete order: ${error.message}`, "error")
   }
@@ -188,17 +188,16 @@ function displayOrders(ordersToDisplay = orders) {
   ordersTable.innerHTML = tableHTML
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadOrders()
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadOrders()
   orderForm.addEventListener("submit", async (e) => {
     e.preventDefault()
-    clearAlerts()
-
+    clearAlerts();
     const orderData = {
       title: document.getElementById("title").value,
       details: document.getElementById("details").value,
-      price: Number.parseFloat(document.getElementById("price").value),
-      customerId: currentUser?.id || null,
+      price: Number.parseFloat(document.getElementById("price").value)
+      
     }
     await createOrder(orderData)
   })

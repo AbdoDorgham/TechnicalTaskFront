@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const BASE_URL = "https://admindemo.boniantech.com/callprophetsTest";
+
     const ENDPOINTS = {
         login: "/api/Account/Login",
         register: "/api/Account/RegisterCustomer"
@@ -23,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     loginForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        debugger;
         const isuserNameValid = validateuserName();
         const isPasswordValid = validatePassword();
 

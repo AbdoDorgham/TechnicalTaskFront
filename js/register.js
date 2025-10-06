@@ -1,6 +1,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     const BASE_URL = "https://admindemo.boniantech.com/callprophetsTest";
+
     const ENDPOINTS = {
         login: "/api/Account/Login",
         register: "/api/Account/RegisterCustomer"
@@ -17,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const lastNameInput = document.getElementById('lastName');
     const addressInput = document.getElementById('address');
     const genderInput = document.getElementById('gender');
-
     const usernameError = document.getElementById('usernameError');
     const emailError = document.getElementById('emailError');
     const phoneError = document.getElementById('phoneError');
@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const lastNameError = document.getElementById('lastNameError');
     const addressError = document.getElementById('addressError');
     const genderError = document.getElementById('genderError');
+    const serverError = document.getElementById('serverError');
 
     const successMessage = document.getElementById('successMessage');
 
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const isLastNameValid = validateLastName();
         const isGenderValid = validateGender();
 
-        if (isUsernameValid && isEmailValid && isPhoneValid &&
+        if ( isUsernameValid && isEmailValid && isPhoneValid &&
             isPasswordValid && isConfirmPasswordValid &&
             isFirstNameValid && isLastNameValid && isGenderValid) {
 
@@ -74,10 +75,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
             }
 
-            if (ENDPOINTS.authToken && !isTokenExpired(ENDPOINTS.authToken)) {
-                defaultOptions.headers["Authorization"] = `Bearer ${ENDPOINTS.authToken}`
-            }
-
+            // if (ENDPOINTS.authToken && !isTokenExpired(ENDPOINTS.authToken)) {
+            //     defaultOptions.headers["Authorization"] = `Bearer ${ENDPOINTS.authToken}`
+            // }
 
             fetch(BASE_URL + ENDPOINTS.register, {
                 method: 'POST',
@@ -87,14 +87,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(res => res.json())
                 .then(response => {
                     if (response.isFail) {
-                        if (response.Errors) {
-                            handleModelErrors(response.errors);
-                        } else {
-                            showFormError(response.message);
-                        }
+             
+                        showFormError(response.message);
+                        
+                    } else if (response.errors) {
+                        handleModelErrors(response.errors);
                     } 
                     else {
                         showSuccess(response.Message || 'Registration successful!');
+                        window.location.href = "index.html"; 
                         registerForm.reset();
                     }
                 })
@@ -223,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function showSuccess(message) {
         successMessage.textContent = message;
         successMessage.classList.remove('hidden');
-        window.location.href = "index.html"; 
 
         setTimeout(() => {
             successMessage.classList.add('hidden');
@@ -231,21 +231,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function showFormError(message) {
-        genderError.textContent = message;
+        serverError.textContent = message;
     }
 
     function handleModelErrors(errors) {
-        const errorElements = document.querySelectorAll('.error');
-        errorElements.forEach(element => {
-            element.textContent = '';
+        serverError.textContent = '';
+        var errorMessages = Object.values(errors);
+        errorMessages.forEach(messages => {
+            serverError.textContent += messages[0] + '\n';
+            
         });
-
-        for (const [field, messages] of Object.entries(errors)) {
-            const errorElement = document.getElementById(field.toLowerCase() + 'Error');
-            if (errorElement && messages.length > 0) {
-                errorElement.textContent = messages[0];
-            }
-        }
     }
 
 });
